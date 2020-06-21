@@ -16,18 +16,14 @@ server.get('/', (req, res) => {
   res.send(`server running for BW project!`);
 });
 
-server.use('/api/auth', logger, authRouter);
-server.use('/api/recipes', logger, authenticate, recipeRouter);
+server.use('/api/auth', authRouter);
+server.use('/api/recipes', authenticate, recipeRouter);
 
-//custom middleware
+// custom middleware for logger
 function logger(req, res, next) {
-  console.log(`
-  {
-      method: ${req.method},
-      url: ${req.url},
-      timestamp: ${new Date().toLocaleString()}
-  }
-  `);
+  const { method, originalUrl } = req;
+  console.log(`${method} to ${originalUrl}`);
+
   next();
 }
 
