@@ -2,7 +2,7 @@ const router = require('express').Router();
 
 const restricted = require('../auth/restricted-middleware');
 
-const Recipes = require('./recipes-model.js');
+const Recipes = require('./recipe-model');
 
 router.get('/', restricted, async (req, res) => {
   try {
@@ -71,11 +71,9 @@ router.delete('/:id', restricted, async (req, res) => {
       res.status(404).json({ message: 'Recipe deleted' });
     }
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: 'There was an error while attempting to remove that recipe',
-      });
+    res.status(500).json({
+      message: 'There was an error while attempting to remove that recipe',
+    });
   }
 });
 
@@ -90,11 +88,9 @@ router.put('/:id', restricted, async (req, res) => {
         res.status(404).json({ message: 'That recipe does not exist' });
       }
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: 'There was an error while trying to update the recipe',
-        });
+      res.status(500).json({
+        message: 'There was an error while trying to update the recipe',
+      });
     }
   } else {
     res.status(400).json({ message: 'Name of recipe is required' });

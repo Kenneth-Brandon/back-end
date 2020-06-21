@@ -1,7 +1,7 @@
 const router = require('express').Router();
 
 const db = require('../database/dbconfig');
-const Categories = require('./categories-model.js');
+const Categories = require('./categories-model');
 
 router.get('/', async (req, res) => {
   try {

@@ -3,7 +3,7 @@ const express = require('express');
 const middleware = require('../secrets/middleware');
 const authRouter = require('../auth/auth-router');
 const usersRouter = require('../users/users-router');
-const recipesRouter = require('../recipes/recipes-router');
+const recipesRouter = require('../recipes/recipe-router');
 const restricted = require('../auth/restricted-middleware');
 // const categoriesRouter = require('../categories/categories-router')
 
