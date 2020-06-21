@@ -2,20 +2,19 @@ exports.up = function (knex) {
   return knex.schema
     .createTable('users', (tbl) => {
       tbl.increments();
-      tbl.varchar('name');
-      tbl.varchar('email').unique();
-      tbl.varchar('username', 1000).notNullable().unique();
-      tbl.varchar('password', 1000).notNullable();
+      tbl.string('name');
+      tbl.string('email').unique();
+      tbl.string('username', 50).notNullable().unique();
+      tbl.string('password', 50).notNullable();
     })
-
     .createTable('recipes', (tbl) => {
       tbl.increments();
-      tbl.varchar('title', 100).notNullable().index();
-      tbl.varchar('creator').index();
-      tbl.varchar('ingredients', 10000).notNullable();
-      tbl.varchar('directions', 10000).notNullable();
-      tbl.varchar('category', 30).notNullable().index();
-      // foreign key
+      tbl.string('title', 100).notNullable().index();
+      tbl.string('creator').index();
+      tbl.string('ingredients', 1000).notNullable();
+      tbl.string('directions', 1000).notNullable();
+      tbl.string('category', 30).notNullable().index();
+      // foreign key that references the id in the users table...this is a one to many
       tbl
         .integer('user_id')
         .unsigned()

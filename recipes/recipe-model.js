@@ -1,4 +1,4 @@
-const db = require('../database/dbconfig');
+const db = require('../database/dbConfig.js');
 
 module.exports = {
   getAllRecipes,
