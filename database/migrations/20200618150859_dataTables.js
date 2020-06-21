@@ -4,8 +4,8 @@ exports.up = function (knex) {
       tbl.increments();
       tbl.varchar('name');
       tbl.varchar('email').unique();
-      tbl.varchar('username', 50).notNullable().unique();
-      tbl.varchar('password', 50).notNullable();
+      tbl.varchar('username', 1000).notNullable().unique();
+      tbl.varchar('password', 1000).notNullable();
     })
 
     .createTable('recipes', (tbl) => {
