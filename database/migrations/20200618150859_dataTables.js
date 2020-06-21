@@ -12,8 +12,8 @@ exports.up = function (knex) {
       tbl.increments();
       tbl.string('title', 100).notNullable().index();
       tbl.string('creator').index();
-      tbl.string('ingredients', 10000).notNullable();
-      tbl.string('directions', 10000).notNullable();
+      tbl.varchar('ingredients', 10000).notNullable();
+      tbl.varchar('directions', 10000).notNullable();
       tbl.string('category', 30).notNullable().index();
       // foreign key
       tbl
