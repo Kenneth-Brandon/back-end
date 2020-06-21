@@ -36,7 +36,7 @@ module.exports = {
     },
   },
   production: {
-    client: 'sqlite3',
+    client: 'pg',
     connection: {
       filename: './database/fam-recipes.db3',
     },
