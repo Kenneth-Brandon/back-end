@@ -1,18 +1,8 @@
-const dummyPgConfig = {
-  // placeholder since there is no pg locally
-  host: '',
-  database: '',
-  user: '',
-  password: '',
-};
-
-const prodDbConnection = process.env.DATABASE_URL || dummyPgConfig;
-
 module.exports = {
   development: {
     client: 'sqlite3',
     connection: {
-      filename: './database/fam-recipes.db3',
+      filename: './database/fam_recipes.db3',
     },
     useNullAsDefault: true,
     migrations: {
@@ -21,11 +11,17 @@ module.exports = {
     seeds: {
       directory: './database/seeds',
     },
+    pool: {
+      afterCreate: (conn, done) => {
+        conn.run('PRAGMA foreign_keys = ON', done);
+      },
+    },
   },
+
   testing: {
     client: 'sqlite3',
     connection: {
-      filename: './database/test.db3',
+      filename: './database/test_fam_recipes.db3',
     },
     useNullAsDefault: true,
     migrations: {
@@ -34,18 +30,25 @@ module.exports = {
     seeds: {
       directory: './database/seeds',
     },
+    pool: {
+      afterCreate: (conn, done) => {
+        conn.run('PRAGMA foreign_keys = ON', done);
+      },
+    },
   },
+
   production: {
     client: 'pg',
-    connection: {
-      filename: './database/fam-recipes.db3',
+    connection: process.env.DATABASE_URL,
+    pool: {
+      min: 2,
+      max: 10,
     },
-    useNullAsDefault: true,
     migrations: {
-      directory: '/database/migrations',
+      directory: './database/migrations',
     },
     seeds: {
-      directory: '/database/seeds',
+      directory: './database/seeds',
     },
   },
 };
