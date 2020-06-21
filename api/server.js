@@ -1,23 +1,34 @@
 const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
 
-const middleware = require('../secrets/middleware');
-const authRouter = require('../auth/auth-router');
-const usersRouter = require('../users/users-router');
-const recipesRouter = require('../recipes/recipe-router');
-const restricted = require('../auth/restricted-middleware');
-// const categoriesRouter = require('../categories/categories-router')
-
+const authenticate = require('../auth/auth-middleware.js');
+const authRouter = require('../auth/auth-router.js');
+const recipeRouter = require('../recipes/recipe-router.js');
 const server = express();
 
-middleware(server);
+server.use(logger);
+server.use(cors());
+server.use(helmet());
+server.use(express.json());
 
-server.use('/api/auth', authRouter);
-server.use('/api/users', usersRouter);
-server.use('/api/recipes', recipesRouter);
-// server.use('/api/categories', categoriesRouter)
-
-server.get('/', async (req, res) => {
-  res.status(200).json({ api: 'its a go' });
+server.get('/', (req, res) => {
+  res.send(`server running for BW project!`);
 });
+
+server.use('/api/auth', logger, authRouter);
+server.use('/api/recipes', logger, authenticate, recipeRouter);
+
+//custom middleware
+function logger(req, res, next) {
+  console.log(`
+  {
+      method: ${req.method},
+      url: ${req.url},
+      timestamp: ${new Date().toLocaleString()}
+  }
+  `);
+  next();
+}
 
 module.exports = server;
