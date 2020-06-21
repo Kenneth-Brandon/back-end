@@ -38,7 +38,7 @@ module.exports = {
   production: {
     client: 'sqlite3',
     connection: {
-      filename: '/database/recipeBook.sqlite3',
+      filename: './database/fam-recipes.db3',
     },
     useNullAsDefault: true,
     migrations: {
