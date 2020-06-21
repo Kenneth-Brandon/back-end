@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../recipes/recipe-model.js');
+const db = require('../recipes/recipe-model');
 
-const Users = require('../users/users-model.js');
-const Recipes = require('./recipe-model.js');
+const Users = require('../users/users-model');
+const Recipes = require('./recipe-model');
 
 // GET all recipes
 router.get('/', (req, res) => {
