@@ -1,4 +1,4 @@
-const db = require('../data/dbConfig');
+const db = require('../database/dbconfig');
 
 module.exports = {
   getCats,

@@ -1,6 +1,6 @@
 const router = require('express').Router();
 
-const db = require('../data/dbConfig');
+const db = require('../database/dbconfig');
 const Categories = require('./categories-model.js');
 
 router.get('/', async (req, res) => {
