@@ -2,15 +2,15 @@ exports.up = function (knex, Promise) {
   return knex.schema.createTable('recipes', (tbl) => {
     tbl.increments();
 
-    tbl.text('title').notNullable();
+    tbl.varchar('title').notNullable();
 
-    tbl.text('creator').notNullable();
+    tbl.varchar('creator').notNullable();
 
-    tbl.text('ingredients', 10000).notNullable();
+    tbl.varchar('ingredients', 10000).notNullable();
 
-    tbl.text('directions', 10000).notNullable();
+    tbl.varchar('directions', 10000).notNullable();
 
-    tbl.text('category').notNullable();
+    tbl.varchar('category').notNullable();
 
     tbl
       .integer('user_id')
