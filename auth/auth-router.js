@@ -1,60 +1,46 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-
-const secrets = require('../config/secret.js');
 
 const Users = require('../users/users-model.js');
+const tokenService = require('./token-service.js');
 
-// POST register
-router.post('/register', (req, res) => {
-  let user = req.body;
-  const hash = bcrypt.hashSync(user.password, 8); // hash a password when registering
-  user.password = hash;
-
-  Users.add(user)
-    .then((newUser) => {
-      res.status(201).json(newUser);
-    })
-    .catch((err) => {
-      res.status(500).json(err);
-    });
+router.post('/register', async (req, res) => {
+  try {
+    let user = req.body;
+    const hash = bcrypt.hashSync(user.password, 10);
+    user.password = hash;
+    const newuser = await Users.addUser(user);
+    console.log(newuser);
+    const token = tokenService.generateToken(newuser);
+    res
+      .status(201)
+      .json({ message: 'User created', id: newuser.id, token: token });
+  } catch (error) {
+    res.status(500).json(error);
+  }
 });
 
-// POST login
 router.post('/login', (req, res) => {
   let { username, password } = req.body;
-
   Users.findBy({ username })
     .first()
     .then((user) => {
       if (user && bcrypt.compareSync(password, user.password)) {
-        const token = signToken(user);
-
-        res.status(200).json({
-          message: `${token}`,
-          user_id: `${user.id}`,
-        });
+        const token = tokenService.generateToken(user);
+        res
+          .status(200)
+          .json({
+            message: `Successfully logged into ${user.username}!`,
+            token,
+            id: user.id,
+          });
       } else {
-        res.status(401).json({ you: 'shall not pass' });
+        res.status(401).json({ message: 'Invalid credentials' });
       }
     })
-    .catch((err) => {
-      res.status(500).json(err);
+    .catch((error) => {
+      res.status(500).json({ message: 'Could not find user' });
     });
 });
-
-function signToken(user) {
-  const payload = {
-    userId: user.id,
-    username: user.username,
-  };
-
-  const options = {
-    expiresIn: '1d',
-  };
-
-  return jwt.sign(payload, secrets.jwtSecret, options);
-}
 
 module.exports = router;

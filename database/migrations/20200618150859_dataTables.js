@@ -1,31 +1,29 @@
-exports.up = function (knex) {
-  return knex.schema
-    .createTable('users', (tbl) => {
-      tbl.increments();
-      tbl.string('name');
-      tbl.string('email').unique();
-      tbl.string('username', 50).notNullable().unique();
-      tbl.string('password', 50).notNullable();
-    })
-    .createTable('recipes', (tbl) => {
-      tbl.increments();
-      tbl.string('title', 100).notNullable().index();
-      tbl.string('creator').index();
-      tbl.string('ingredients', 1000).notNullable();
-      tbl.string('directions', 1000).notNullable();
-      tbl.string('category', 30).notNullable().index();
-      // foreign key that references the id in the users table...this is a one to many
-      tbl
-        .integer('user_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('users')
-        .onDelete('CASCADE')
-        .onUpdate('CASCADE');
-    });
+exports.up = function (knex, Promise) {
+  return knex.schema.createTable('recipes', (tbl) => {
+    tbl.increments();
+
+    tbl.string('title').notNullable();
+
+    tbl.string('creator').notNullable();
+
+    tbl.string('ingredients').notNullable();
+
+    tbl.string('directions').notNullable();
+
+    tbl.string('category').notNullable();
+
+    tbl
+      .integer('user_id')
+      .unsigned()
+      .references('id')
+      .inTable('users')
+      .onDelete('CASCADE')
+      .onUpdate('CASCADE');
+
+    tbl.timestamps(true, true);
+  });
 };
 
-exports.down = function (knex) {
-  return knex.schema.dropTableIfExists('recipes').dropTableIfExists('users');
+exports.down = function (knex, Promise) {
+  return knex.schema.dropTableIfExists('recipes');
 };

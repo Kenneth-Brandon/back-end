@@ -1,30 +1,23 @@
 const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
 
-const authenticate = require('../auth/auth-middleware.js'); // will put on recipeRouter
-const authRouter = require('../auth/auth-router.js');
-const recipeRouter = require('../recipes/recipe-router.js');
+const middleware = require('../secrets/middleware');
+const authRouter = require('../auth/auth-router');
+const usersRouter = require('../users/users-router');
+const recipesRouter = require('../recipes/recipes-router');
+const restricted = require('../auth/restricted-middleware');
+// const categoriesRouter = require('../categories/categories-router')
+
 const server = express();
 
-server.use(logger);
-server.use(cors());
-server.use(helmet());
-server.use(express.json());
-
-server.get('/', (req, res) => {
-  res.send(`server running for BW project!`);
-});
+middleware(server);
 
 server.use('/api/auth', authRouter);
-server.use('/api/recipes', authenticate, recipeRouter);
+server.use('/api/users', usersRouter);
+server.use('/api/recipes', recipesRouter);
+// server.use('/api/categories', categoriesRouter)
 
-// custom middleware for logger
-function logger(req, res, next) {
-  const { method, originalUrl } = req;
-  console.log(`${method} to ${originalUrl}`);
-
-  next();
-}
+server.get('/', async (req, res) => {
+  res.status(200).json({ api: 'its a go' });
+});
 
 module.exports = server;

@@ -1,67 +1,86 @@
-const db = require('../database/dbConfig.js');
+const db = require('../data/dbConfig');
+const mappers = require('./mappers');
 
 module.exports = {
   getAllRecipes,
-  getById,
-  insert,
-  update,
-  remove,
+  getRecipeById,
+  addRecipe,
+  removeRecipe,
+  updateRecipe,
+  getRecipeByUserId,
+  findBy,
+  getRecipeByName,
 };
 
 function getAllRecipes() {
-  return db('recipes as r')
-    .select(
-      'r.id',
-      'r.title',
-      'r.creator',
-      'r.ingredients',
-      'r.directions',
-      'r.category',
-      'r.user_id'
-    )
-    .join('users as u', 'r.user_id', '=', 'u.id')
-    .orderBy('r.user_id');
+  return db('recipes').select(
+    'recipes.id',
+    'recipes.title',
+    'recipes.source',
+    'recipes.instructions',
+    'recipes.category',
+    'recipes.ingredients',
+    'recipes.user_id'
+  );
 }
 
-function getById(id) {
+function getRecipeById(id) {
+  return db('recipes')
+    .where({ 'recipes.id': id })
+    .first()
+    .select(
+      'recipes.id',
+      'recipes.title',
+      'recipes.source',
+      'recipes.instructions',
+      'recipes.category',
+      'recipes.ingredients'
+    );
+}
+
+function getRecipeByUserId(userId) {
+  return (
+    db('recipes')
+      .where('user_id', userId)
+      // .first()
+      // .select(
+      //     'recipes.id',
+      //     'recipes.title',
+      //     'recipes.source',
+      //     'recipes.instructions',
+      //     'recipes.category',
+      //     'recipes.ingredients'
+      // )
+      .then((recipes) => recipes.map((recipe) => mappers.recipeToBody(recipe)))
+  );
+}
+
+async function addRecipe(recipe) {
+  const [id] = await db('recipes').insert(recipe, 'id');
   return db('recipes').where({ id }).first();
 }
 
-function insert(recipe) {
-  return db('recipes')
-    .insert(recipe, 'id')
-    .then((ids) => {
-      const [id] = ids;
-
-      return db('recipes').where({ id }).first();
-    });
+function removeRecipe(id) {
+  return db('recipes').where({ id }).del();
 }
 
-function update(id, changes) {
-  return db('recipes')
-    .where('id', id)
-    .update(changes)
-    .then((count) => {
-      if (count > 0) {
-        return getById(id);
-      }
-    });
+function updateRecipe(id, changes) {
+  return db('recipes').where({ id }).update(changes);
 }
 
-function remove(id) {
-  let deletedRecipe = {};
-  db('recipes')
-    .where({ id })
-    .first()
-    .then((recipe) => {
-      deletedRecipe = recipe;
-    });
+function findBy(filter) {
+  return db('recipes').where(filter);
+}
+
+function getRecipeByName(searchString, user_id) {
+  searchString = '%' + searchString + '%';
+  console.log('Searching for', searchString);
+  console.log('User id', user_id);
   return db('recipes')
-    .where('id', id)
-    .del()
-    .then((count) => {
-      if (count > 0) {
-        return deletedRecipe;
-      }
-    });
+    .where((builder) =>
+      builder
+        .where('category', 'like', searchString)
+        .orWhere('title', 'like', searchString)
+    )
+    .andWhere({ user_id: user_id });
 }
