@@ -20,9 +20,7 @@ module.exports = {
 
   testing: {
     client: 'sqlite3',
-    connection: {
-      filename: './database/test_fam_recipes.db3',
-    },
+    connection: './database/test_fam_recipes.db3',
     useNullAsDefault: true,
     migrations: {
       directory: './database/migrations',
@@ -40,6 +38,7 @@ module.exports = {
   production: {
     client: 'pg',
     connection: process.env.DATABASE_URL,
+    useNullAsDefault: true,
     pool: {
       min: 2,
       max: 10,

@@ -6,7 +6,13 @@ module.exports = {
   findByUsername,
   getUsersRecipes,
   getUsersById,
+  remove,
+  find,
 };
+
+function find() {
+  return db('users').select('id', 'username', 'password');
+}
 
 function findBy(filter) {
   return db('users').where(filter);
@@ -38,4 +44,8 @@ function getUsersRecipes(id) {
     )
     .where('r.user_id', id)
     .orderBy('r.user_id', id);
+}
+
+function remove(id) {
+  return db('users').where({ id }).del();
 }

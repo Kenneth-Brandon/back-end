@@ -1,23 +1,31 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
-const secrets = require('../config/secrets');
-
+const db = require('../database/dbconfig');
+const secrets = require('../config/secret');
 const Users = require('../users/users-model');
 
 // POST register
 router.post('/register', (req, res) => {
   let user = req.body;
-  const hash = bcrypt.hashSync(user.password, 8); // hash a password when registering
+  const hash = bcrypt.hashSync(user.password, 10);
   user.password = hash;
 
   Users.add(user)
     .then((newUser) => {
-      res.status(201).json(newUser);
+      const token = signToken(newUser);
+      res.status(201).json({
+        created_user: newUser,
+        user_id: `${newUser.id}`,
+        token: `${token}`,
+        message: 'Successfully created a new user',
+      });
     })
     .catch((err) => {
-      res.status(500).json(err);
+      console.log(err);
+      res.status(500).json({
+        errorMessage: 'User failed to be created',
+      });
     });
 });
 
@@ -32,21 +40,26 @@ router.post('/login', (req, res) => {
         const token = signToken(user);
 
         res.status(200).json({
-          message: `${token}`,
-          user_id: `${user.id}`,
+          username: `${user.username}`,
+          id: `${user.id}`,
+          token: `${token}`,
+          message: 'Logged in',
         });
       } else {
-        res.status(401).json({ you: 'shall not pass' });
+        res.status(401).json({ errorMessage: 'Invalid credentials' });
       }
     })
     .catch((err) => {
-      res.status(500).json(err);
+      console.log(err);
+      res.status(500).json({
+        errorMessage: 'Failed to login',
+      });
     });
 });
 
 function signToken(user) {
   const payload = {
-    userId: user.id,
+    subject: user.id,
     username: user.username,
   };
 
