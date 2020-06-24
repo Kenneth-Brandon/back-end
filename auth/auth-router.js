@@ -2,7 +2,7 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../database/dbconfig');
-const secrets = require('../config/secret');
+const secrets = require('../config/secrets');
 const Users = require('../users/users-model');
 
 // POST register

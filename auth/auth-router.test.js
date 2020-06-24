@@ -1,5 +1,5 @@
 const request = require('supertest');
-const server = require('../api/server.js');
+const server = require('../api/server');
 
 describe('auth-router', function () {
   describe('test environment', function () {
