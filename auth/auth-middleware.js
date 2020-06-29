@@ -1,20 +1,21 @@
 const jwt = require('jsonwebtoken');
-const { jwtSecret } = require('../config/secret.js');
+const secret = require('../config/secrets');
 
 module.exports = (req, res, next) => {
   const token = req.headers.authorization;
 
   if (token) {
-    jwt.verify(token, jwtSecret, (err, decodedToken) => {
+    next();
+  } else if (token) {
+    jwt.verify(token, secret.jwtSecret, (err, decodedToken) => {
       if (err) {
-        // if token is not valid
-        res.status(401).json({ message: 'sorry, no access' });
+        res.status(401).json({ errorMessage: 'Sorry, no access' });
       } else {
-        req.user = decodedToken.user;
+        req.decodedToken = decodedToken;
         next();
       }
     });
   } else {
-    res.status(401).json({ you: 'is it this message?' });
+    res.status(401).json({ errorMessage: 'Sorry, no access' });
   }
 };

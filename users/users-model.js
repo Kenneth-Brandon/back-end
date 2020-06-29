@@ -1,4 +1,4 @@
-const db = require('../database/dbConfig.js');
+const db = require('../database/dbconfig');
 
 module.exports = {
   add,
@@ -6,14 +6,20 @@ module.exports = {
   findByUsername,
   getUsersRecipes,
   getUsersById,
+  remove,
+  find,
 };
+
+function find() {
+  return db('users').select('id', 'username', 'password');
+}
 
 function findBy(filter) {
   return db('users').where(filter);
 }
 
 async function add(user) {
-  const [id] = await db('users').insert(user);
+  const [id] = await db('users').insert(user, 'id');
 
   return getUsersById(id);
 }
@@ -38,4 +44,8 @@ function getUsersRecipes(id) {
     )
     .where('r.user_id', id)
     .orderBy('r.user_id', id);
+}
+
+function remove(id) {
+  return db('users').where({ id }).del();
 }

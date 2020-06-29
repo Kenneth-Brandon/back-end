@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../recipes/recipe-model.js');
 
-const Users = require('../users/users-model.js');
-const Recipes = require('./recipe-model.js');
+const Recipes = require('./recipe-model');
+const Users = require('../users/users-model');
 
 // GET all recipes
 router.get('/', (req, res) => {
@@ -13,7 +12,7 @@ router.get('/', (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).json({ errMessage: 'Failed to get recipes, sorry!' });
+      res.status(500).json({ errorMessage: 'Failed to get recipes, sorry!' });
     });
 });
 
@@ -23,15 +22,17 @@ router.post('/:id/user', validateRecipe, (req, res) => {
   req.body.user_id = id;
   const recipeData = req.body;
 
-  Recipes.insert(recipeData)
+  Recipes.addRecipe(recipeData)
     .then((brandNewRecipe) => {
-      res.status(200).json({ brandNewRecipe });
+      res
+        .status(201)
+        .json({ brandNewRecipe, message: 'Recipe added successfully!' });
     })
     .catch((err) => {
       console.log(err);
-      res
-        .status(500)
-        .json({ error: 'There was an error while saving to the database' });
+      res.status(500).json({
+        errorMessage: 'There was an error while saving to the database',
+      });
     });
 });
 
@@ -39,21 +40,21 @@ router.post('/:id/user', validateRecipe, (req, res) => {
 router.get('/:id', validateRecipeId, (req, res) => {
   const recipeID = req.params.id;
 
-  db.getById(recipeID)
+  Recipes.getById(recipeID)
     .then((specificRec) => {
       if (specificRec) {
         res.status(200).json(specificRec);
       } else {
         res.status(500).json({
-          error: 'No recipe with that ID',
+          errorMessage: 'No recipe with that ID',
         });
       }
     })
     .catch((err) => {
       console.log(err);
-      res
-        .status(500)
-        .json({ error: 'The recipe information could not be retrieved' });
+      res.status(500).json({
+        errorMessage: 'The recipe information could not be retrieved',
+      });
     });
 });
 
@@ -66,7 +67,7 @@ router.get('/:id/user', validateUserId, (req, res) => {
       res.status(200).json(recipes);
     })
     .catch((err) => {
-      res.status(500).json({ errMessage: 'Failed to get recipes' });
+      res.status(500).json({ errorMessage: 'Failed to get recipes' });
     });
 });
 
@@ -76,12 +77,22 @@ router.put('/:id', validateRecipeId, (req, res) => {
   const recipeData = req.body;
 
   Recipes.update(id, recipeData)
-    .then((recipe) => {
-      res.status(200).json(recipe);
+    .then((updatedRecipe) => {
+      if (updatedRecipe) {
+        res.status(200).json({
+          message: 'Recipe updated',
+        });
+      } else {
+        res.status(404).json({
+          errorMessage: 'Recipe not found',
+        });
+      }
     })
     .catch((err) => {
       console.log(err);
-      res.status(500).json({ error: 'The recipe could not be modified' });
+      res
+        .status(500)
+        .json({ errorMessage: 'The recipe could not be modified' });
     });
 });
 
@@ -89,30 +100,37 @@ router.put('/:id', validateRecipeId, (req, res) => {
 router.delete('/:id', (req, res) => {
   const id = req.params.id;
 
-  Recipes.remove(id).then((deleted) => {
-    if (deleted) {
-      res.status(200).json({ deleted });
-    } else {
-      res.status(404).json({ error: 'Failed to delete post' });
-    }
-  });
+  Recipes.remove(id)
+    .then((deleted) => {
+      if (deleted) {
+        res.status(200).json({ message: 'Recipe deleted' });
+      } else {
+        res.status(404).json({ errorMessage: 'Recipe not found' });
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        errorMessage: "Couldn't delete recipe",
+      });
+    });
 });
 
 // CUSTOM MIDDLEWARE
 function validateRecipe(req, res, next) {
   const data = req.body;
   if (!data) {
-    res.status(400).json({ error: 'missing required fields' });
+    res.status(400).json({ errorMessage: 'Missing required fields' });
   } else if (!data.title) {
-    res.status(400).json({ error: 'missing required title' });
+    res.status(400).json({ errorMessage: 'Missing required title' });
   } else if (!data.ingredients) {
-    res.status(400).json({ error: 'missing required ingredients' });
+    res.status(400).json({ errorMessage: 'Missing required ingredients' });
   } else if (!data.directions) {
-    res.status(400).json({ error: 'missing required directions' });
+    res.status(400).json({ errorMessage: 'Missing required directions' });
   } else if (!data.category) {
-    res.status(400).json({ error: 'missing required category' });
+    res.status(400).json({ errorMessage: 'Missing required category' });
   } else if (!data.user_id) {
-    res.status(400).json({ error: 'missing required user_id' });
+    res.status(400).json({ errorMessage: 'Missing required user_id' });
   } else {
     next();
   }
@@ -124,7 +142,7 @@ function validateRecipeId(req, res, next) {
     next();
   } else {
     res.status(404).json({
-      message: 'The recipe with the specific ID does not exist',
+      errorMessage: 'The recipe with the specific ID does not exist',
     });
   }
 }
@@ -137,13 +155,13 @@ function validateUserId(req, res, next) {
         req.user = user;
         next();
       } else {
-        res.status(404).json({ message: 'invalid user id' });
+        res.status(404).json({ errorMessage: 'Invalid user id' });
       }
     })
     .catch((error) => {
       res
         .status(500)
-        .json({ error: 'The user information could not be retrieved.' });
+        .json({ errorMessage: 'The user information could not be retrieved.' });
     });
 }
 
