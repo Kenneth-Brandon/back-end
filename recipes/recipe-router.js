@@ -22,7 +22,7 @@ router.post('/:id/user', validateRecipe, (req, res) => {
   req.body.user_id = id;
   const recipeData = req.body;
 
-  Recipes.insert(recipeData)
+  Recipes.addRecipe(recipeData)
     .then((brandNewRecipe) => {
       res
         .status(201)
