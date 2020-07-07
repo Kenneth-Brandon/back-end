@@ -1,5 +1,7 @@
 const request = require('supertest');
 const server = require('../api/server');
+const db = require('../database/dbConfig');
+const Recipes = require('./recipe-model');
 
 describe('recipe-router', function () {
   describe('test environment', function () {

@@ -16,6 +16,6 @@ module.exports = (req, res, next) => {
       }
     });
   } else {
-    res.status(401).json({ errorMessage: 'Sorry, no access' });
+    res.status(403).json({ errorMessage: 'Sorry, no access' });
   }
 };

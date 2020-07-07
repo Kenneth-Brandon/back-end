@@ -1,54 +1,39 @@
 const request = require('supertest');
 const server = require('../api/server');
+const db = require('../database/dbconfig');
+const Users = require('../users/users-model');
 
-describe('auth-router', function () {
-  describe('test environment', function () {
-    it('should use the testing environment', function () {
-      expect(process.env.DB_ENV).toEqual('testing');
-    });
+describe('register', () => {
+  it('should return status 201', async () => {
+    const res = await request(server)
+      .post('/api/auth/register')
+      .send({ username: 'Kenneth.Brandon', password: 'password' });
+    expect(res.status).toBe(201);
   });
 
-  // test the POST for register
-  describe('POST /register', function () {
-    it('should return new user with text/html', function () {
-      return request(server)
-        .post('/api/auth/register')
-        .then((res) => {
-          expect(res.type).toMatch('text/html');
-        });
-    });
+  it('should return the user added', async () => {
+    const res = await request(server)
+      .post('/api/auth/register')
+      .send({ username: 'Marie.Brandon', password: 'password' });
+    expect({ username: 'Marie.Brandon' });
+  });
+  beforeEach(async () => {
+    await db('users').truncate();
+  });
+});
+
+describe('login', () => {
+  it('should return status 200', async () => {
+    const res = await request(server)
+      .post('/api/auth/login')
+      .send({ username: 'Marie.Brandon', password: 'password' });
+    expect(res.status).toBe(200);
   });
 
-  describe('POST /register err', function () {
-    it('should not return JSON', function () {
-      return request(server)
-        .post('/api/auth/register')
-        .then((res) => {
-          expect(res.type).not.toMatch(/json/i);
-          // tests the test above...so if you put in text/html this test will fail
-        });
-    });
-  });
-
-  // test the POST for login
-  describe('POST /login', function () {
-    it('should return JSON', function () {
-      return request(server)
-        .post('/api/auth/login')
-        .then((res) => {
-          expect(res.type).toMatch(/json/i);
-        });
-    });
-  });
-
-  describe('POST /login err', function () {
-    it('should not match text/html', function () {
-      return request(server)
-        .post('/api/auth/login')
-        .then((res) => {
-          expect(res.type).not.toMatch('text/html');
-          // tests the test above...so if you put in /json/i this test will fail
-        });
-    });
+  it('should return a token', async () => {
+    const res = await request(server)
+      .post('/api/auth/login')
+      .send({ username: 'Kenneth.Brandon', password: 'password' });
+    expect(res.body.token);
   });
 });
